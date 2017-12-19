@@ -1,0 +1,89 @@
+
+<% include ../partials/header %>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+<div class ="container">
+    <div class="row">
+        <div class="col-md-3">
+            <p class="lead">CampSite</p>
+            <div class="list-group">
+                <li class="list-group-item active"> Info 1</li>
+                <li class="list-group-item"> Info 2</li>
+                <li class="list-group-item"> Info 3</li>
+            </div>
+								
+<!--					LOCATION-->
+					<hr>
+                <h4> <i class="fa fa-location-arrow" aria-hidden="true"></i> Location</h4>
+                <p><strong>Address: </strong><%- campground.location %></p>
+                <% if(campground.latlng) { %>
+                    <div id="map" style="height: 300px;" class="map">
+                        <script>
+                            var latlngObj = new google.maps.LatLng(<%=campground.latlng%>);
+                            var map = new google.maps.Map(document.getElementById('map'));
+                            map.setCenter(latlngObj);
+                            map.setZoom(6);
+                            var marker = new google.maps.Marker({
+                                position: latlngObj,
+                                map: map
+                            });
+                        </script>
+                    </div>
+					<% } %>
+        </div>
+        <div class="col-md-9">
+            <div class="thumbnail">
+                <img class="image-responsive" src="<%= campground.image %>">
+                <div class="caption-full">
+                    <h4 class="pull-right"><%= campground.price %> RS/Night</h4>
+                    <H4><a><%= campground.name %></a></H4>
+                    <p><%= campground.description%></p>
+                    <p>
+						<em>
+							<strong>Submitted By:</strong> <%= campground.author.username %> 
+							<br>
+							<strong>Created :</strong> <%= moment(campground.createdAt).fromNow() %>
+						</em>
+<!--						.charAt(0).toUpperCase() + campground.author.username.slice(1).toLowerCase()-->
+                    </p>
+                    <% if(currentUser && campground.author.id.equals(currentUser._id)){ %>
+                        <a class="btn btn-xs btn-warning" href="/campgrounds/<%= campground._id %>/edit">Edit</a>
+                        <form id="delete-form" action="/campgrounds/<%= campground._id %>?_method=DELETE" method="POST">
+                            <button class="btn btn-xs btn-danger">Delete</button>
+                        </form>
+                    <% } %>
+
+                </div>    
+            </div>
+            <div class="well">
+                <div class="text-right">
+                    <a class = "btn btn-success" href="/campgrounds/<%= campground._id%>/comments/new">Leave a comment</a>
+                </div>
+                <hr>
+                <% campground.comments.forEach(function(comment){ %>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <strong><%= comment.author.username %></strong>
+<!--								.charAt(0).toUpperCase() + comment.author.username.slice(1).toLowerCase()-->
+                                <span class="pull-right"><%= comment.createdAt.toString().slice(0,3) +","+ comment.createdAt.toString().slice(3,15) %></span>
+                                <p>
+                                    <%= comment.text %>
+                                </p>
+                                <% if(currentUser && comment.author.id.equals(currentUser._id)){ %>
+                                    <a class="btn btn-xs btn-warning" href="/campgrounds/<%= campground._id %>/comments/<%= comment._id %>/edit">
+                                        Edit
+                                    </a>
+                                    <form id="delete-form" action="/campgrounds/<%= campground._id %>/comments/<%= comment._id %>?_method=DELETE" method="POST">
+                                        <button class="btn btn-xs btn-danger">Delete</button>
+                                    </form>
+                                <% } %>
+                            </div>
+                        </div>
+                <% });%>
+            </div>
+        </div>
+    </div>
+</div>
+ 
+     
+<% include ../partials/footer %>
+
